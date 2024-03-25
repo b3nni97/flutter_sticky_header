@@ -13,11 +13,13 @@ class RenderSliverStickyHeader extends RenderSliver with RenderSliverHelpers {
   RenderSliverStickyHeader({
     RenderObject? header,
     RenderSliver? child,
-    bool overlapsContent: false,
-    bool sticky: true,
+    bool overlapsContent = false,
+    bool sticky = true,
+    bool avoidScrollArtifacts = false,
     StickyHeaderController? controller,
   })  : _overlapsContent = overlapsContent,
         _sticky = sticky,
+        _avoidScrollArtifacts = avoidScrollArtifacts,
         _controller = controller {
     this.header = header as RenderBox?;
     this.child = child;
@@ -38,6 +40,8 @@ class RenderSliverStickyHeader extends RenderSliver with RenderSliverHelpers {
 
   bool get sticky => _sticky;
   bool _sticky;
+
+  bool _avoidScrollArtifacts;
 
   set sticky(bool value) {
     if (_sticky == value) return;
@@ -140,7 +144,6 @@ class RenderSliverStickyHeader extends RenderSliver with RenderSliverHelpers {
       geometry = SliverGeometry.zero;
       return;
     }
-
     // One of them is not null.
     AxisDirection axisDirection = applyGrowthDirectionToAxisDirection(
         constraints.axisDirection, constraints.growthDirection);
@@ -158,6 +161,7 @@ class RenderSliverStickyHeader extends RenderSliver with RenderSliverHelpers {
 
     // Compute the header extent only one time.
     double headerExtent = headerLogicalExtent!;
+
     final double headerPaintExtent =
         calculatePaintOffset(constraints, from: 0.0, to: headerExtent);
     final double headerCacheExtent =
@@ -242,6 +246,7 @@ class RenderSliverStickyHeader extends RenderSliver with RenderSliverHelpers {
       final SliverPhysicalParentData? headerParentData =
           header!.parentData as SliverPhysicalParentData?;
       final double childScrollExtent = child?.geometry?.scrollExtent ?? 0.0;
+
       final double headerPosition = sticky
           ? math.min(
               constraints.overlap,
@@ -284,10 +289,15 @@ class RenderSliverStickyHeader extends RenderSliver with RenderSliverHelpers {
       switch (axisDirection) {
         case AxisDirection.up:
           headerParentData!.paintOffset = Offset(
-              0.0, geometry!.paintExtent - headerPosition - _headerExtent!);
+              0.0,
+              geometry!.paintExtent -
+                  headerPosition -
+                  _headerExtent! +
+                  (_avoidScrollArtifacts ? 1 : 0));
           break;
         case AxisDirection.down:
-          headerParentData!.paintOffset = Offset(0.0, headerPosition);
+          headerParentData!.paintOffset =
+              Offset(0.0, headerPosition - (_avoidScrollArtifacts ? 1 : 0));
           break;
         case AxisDirection.left:
           headerParentData!.paintOffset = Offset(
@@ -318,7 +328,8 @@ class RenderSliverStickyHeader extends RenderSliver with RenderSliverHelpers {
       final didHitHeader = hitTestBoxChild(
         BoxHitTestResult.wrap(SliverHitTestResult.wrap(result)),
         header!,
-        mainAxisPosition: mainAxisPosition - childMainAxisPosition(header) - headerPosition,
+        mainAxisPosition:
+            mainAxisPosition - childMainAxisPosition(header) - headerPosition,
         crossAxisPosition: crossAxisPosition,
       );
 

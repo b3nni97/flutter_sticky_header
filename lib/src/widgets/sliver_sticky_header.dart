@@ -152,8 +152,9 @@ class SliverStickyHeader extends RenderObjectWidget {
     Key? key,
     this.header,
     this.sliver,
-    this.overlapsContent: false,
+    this.overlapsContent = false,
     this.sticky = true,
+    this.avoidScrollArtifacts = false,
     this.controller,
   }) : super(key: key);
 
@@ -170,6 +171,7 @@ class SliverStickyHeader extends RenderObjectWidget {
     Widget? sliver,
     bool overlapsContent: false,
     bool sticky = true,
+    bool avoidScrollArtifacts = false,
     StickyHeaderController? controller,
   }) : this(
           key: key,
@@ -180,6 +182,7 @@ class SliverStickyHeader extends RenderObjectWidget {
           sliver: sliver,
           overlapsContent: overlapsContent,
           sticky: sticky,
+          avoidScrollArtifacts: avoidScrollArtifacts,
           controller: controller,
         );
 
@@ -197,6 +200,11 @@ class SliverStickyHeader extends RenderObjectWidget {
   /// Defaults to true.
   final bool sticky;
 
+  // This parameter determines whether scroll artifacts should be avoided.
+  // Setting this to true adjusts the paintOffset by -1 to prevent visual
+  // artifacts like text appearing on the edge when scrolling.
+  final bool avoidScrollArtifacts;
+
   /// The controller used to interact with this sliver.
   ///
   /// If a [StickyHeaderController] is not provided, then the value of [DefaultStickyHeaderController.of]
@@ -208,6 +216,7 @@ class SliverStickyHeader extends RenderObjectWidget {
     return RenderSliverStickyHeader(
       overlapsContent: overlapsContent,
       sticky: sticky,
+      avoidScrollArtifacts: avoidScrollArtifacts,
       controller: controller ?? DefaultStickyHeaderController.of(context),
     );
   }
