@@ -266,10 +266,11 @@ class RenderSliverStickyHeader extends RenderSliver with RenderSliverHelpers {
         controller?.stickyHeaderScrollOffset =
             constraints.precedingScrollExtent;
       }
-      // second layout if scroll percentage changed and header is a
-      // RenderStickyHeaderLayoutBuilder.
-      if (header is RenderConstrainedLayoutBuilder<
-          BoxValueConstraints<SliverStickyHeaderState>, RenderBox>) {
+
+      // Check if header is a RenderAbstractLayoutBuilderMixin with BoxValueConstraints<SliverStickyHeaderState>
+      if (header is RenderAbstractLayoutBuilderMixin &&
+          header is RenderAbstractLayoutBuilderMixin<
+              BoxValueConstraints<SliverStickyHeaderState>, RenderBox>) {
         double headerScrollRatioClamped = headerScrollRatio.clamp(0.0, 1.0);
 
         SliverStickyHeaderState state =
